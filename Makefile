@@ -15,3 +15,7 @@ linux: app/temprun.go
 test:
 	@test/test.sh
 	go test ./...
+
+.PHONY: release
+release: clean linux
+	tar cvf temprun.v${v}.lnx.tar.gz temprun.lnx README.md LICENSE
