@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"strings"
 
 	"text/template"
@@ -33,8 +32,8 @@ func NewEnvTemplate(osEnv []string, prefix string, seps []string) *EnvTemplate {
 	return tpl
 }
 
-func (t *EnvTemplate) RenderToWriter(writer io.Writer) error {
-	tpl, err := t.createTemplate()
+func (t *EnvTemplate) RenderToWriter(reader io.Reader, writer io.Writer) error {
+	tpl, err := t.createTemplate(reader)
 	if err != nil {
 		return err
 	}
@@ -106,8 +105,8 @@ func makeEnv(osEnv []string) map[string]string {
 	return envMap
 }
 
-func (t *EnvTemplate) createTemplate() (*template.Template, error) {
-	input, err := ioutil.ReadAll(os.Stdin)
+func (t *EnvTemplate) createTemplate(reader io.Reader) (*template.Template, error) {
+	input, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}

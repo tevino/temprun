@@ -16,6 +16,7 @@ import (
 type Args struct {
 	Conf    string
 	Prefix  string
+	Src     string
 	Dst     string
 	DstMode uint
 	Cmd     []string
@@ -45,6 +46,7 @@ func parseArgs() *Args {
 	flagset := flag.NewFlagSet("temprun", flag.ExitOnError)
 	flagset.StringVar(&args.Conf, "conf", "temprun.conf", "Configuration file")
 	flagset.StringVar(&args.Prefix, "prefix", "", "Environment prefix")
+	flagset.StringVar(&args.Src, "src", "-", "Template file")
 	flagset.StringVar(&args.Dst, "dst", "", "Destination file")
 	flagset.UintVar(&args.DstMode, "dst-mode", 0644, "File mode of destination file")
 	flagset.Usage = func() {
@@ -61,24 +63,47 @@ func validateArgs(args *Args) error {
 	return nil
 }
 
+func openDst(dst string, dstMode uint) (io.WriteCloser, error) {
+	var dstWriter io.WriteCloser
+	dstWriter = os.Stdout
+	if dst != "" {
+		dstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.FileMode(dstMode))
+		if err != nil {
+			return nil, err
+		}
+		dstWriter = dstFile
+		defer dstFile.Close()
+	}
+	return dstWriter, nil
+}
+
+func openSrc(src string) (io.ReadCloser, error) {
+	if src == "-" {
+		return os.Stdin, nil
+	}
+	return os.Open(src)
+}
+
 func renderTemplate(args *Args) error {
 	if fileExists(args.Conf) {
 		// use configuration
 		return errors.New("Configuration is not implemented yet")
 	}
 
-	var dstWriter io.Writer
-	dstWriter = os.Stdout
-	if args.Dst != "" {
-		dstFile, err := os.OpenFile(args.Dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.FileMode(args.DstMode))
-		if err != nil {
-			return err
-		}
-		dstWriter = dstFile
-		defer dstFile.Close()
+	src, err := openSrc(args.Src)
+	if err != nil {
+		return err
 	}
+	defer src.Close()
+
+	dst, err := openDst(args.Dst, args.DstMode)
+	if err != nil {
+		return err
+	}
+	defer dst.Close()
+
 	tpl := template.NewEnvTemplate(os.Environ(), args.Prefix, nil)
-	return tpl.RenderToWriter(dstWriter)
+	return tpl.RenderToWriter(src, dst)
 }
 
 func fileExists(path string) bool {

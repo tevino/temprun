@@ -14,3 +14,4 @@ linux: app/temprun.go
 .PHONY: test
 test:
 	@test/test.sh
+	go test ./...
