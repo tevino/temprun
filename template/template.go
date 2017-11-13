@@ -83,14 +83,12 @@ func (t *EnvTemplate) getSep(str string) (string, bool) {
 }
 
 func (t *EnvTemplate) generateFuncMap() {
-	//t.funcMap = make(template.FuncMap, 2)
 	t.funcMap = template.FuncMap{
 		"getv":  t.fGetv,
 		"getvs": t.fGetvs,
 	}
-	//	t.funcMap["getv"] = t.fGetv
-	//	t.funcMap["getvs"] = t.fGetvs
 }
+
 func makeEnv(osEnv []string) map[string]string {
 	envMap := make(map[string]string)
 	for _, env := range osEnv {
