@@ -72,7 +72,6 @@ func openDst(dst string, dstMode uint) (io.WriteCloser, error) {
 			return nil, err
 		}
 		dstWriter = dstFile
-		defer dstFile.Close()
 	}
 	return dstWriter, nil
 }
