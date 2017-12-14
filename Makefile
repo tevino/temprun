@@ -13,8 +13,7 @@ linux: app/temprun.go
 
 .PHONY: test
 test:
-	@test/test.sh
-	go test ./...
+	go test -v ./... && test/test.sh
 
 .PHONY: release
 release: clean linux
