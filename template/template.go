@@ -56,7 +56,7 @@ func (t *EnvTemplate) fGetv(key string) (string, error) {
 	if value, exists := t.getEnv(key); exists {
 		return value, nil
 	}
-	return "", fmt.Errorf("Key  not found '%s'", key)
+	return "", fmt.Errorf("Key not found '%s'", key)
 }
 
 func (t *EnvTemplate) fGetvs(key string) ([]string, error) {
